@@ -69,12 +69,16 @@ Have the Agent have structured claims like this, so Evaluator just does dict com
         Where humans or testing are involved in checking AI results.
 
 - Sun 8/2:
-    - Stretch Feature 
+    - Setup the design/architecture for project
+
+    - Implement the RAG feature 
+
+    - Implement Stretch Feature 
     (branch: feature/genre-overlap-rag-enhancement)
         > Add data file that describes overlapping genres -> add as explanation
         > Document before and after (across branches)
 
-    - Stretch Feature 2 (Optional)
+    - (Optional) Implement Stretch Feature 2
         > Test Harness or Evaluation Script
         Build a script that runs your system on a set of predefined inputs and prints a summary (pass/fail scores, confidence ratings, or similar).
 
