@@ -94,3 +94,10 @@ The Problem:What did you solve?
 The Logic:How does the AI think (RAG? Agentic loop?)
 The Reliability:How do you know it works? (Testing and Guardrails)
 The Reflection:What surprised you?
+
+From Email: 
+- what you built and why
+- how it works
+- how you tested it
+- the challenges you overcame
+- what you're most proud of
