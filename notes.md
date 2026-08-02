@@ -62,22 +62,9 @@ Have the Agent have structured claims like this, so Evaluator just does dict com
 }
 
 # Schedule
-- Sat 8/1: 
-    - Define how to add RAG to project 
-    (branch: feature/song-background-rag)
-        > Add additional files of song/artist background -> consult when making recommendations
-        
-    - Define design and architecture for project
-        Show how your project is organized by creating a short system diagram. Your diagram should include:
-
-        The main components (like retriever, agent, evaluator, or tester).
-        How data flows through the system (input → process → output).
-        Where humans or testing are involved in checking AI results.
-
 - Sun 8/2:
-    - Setup the design/architecture for project
-
-    - Implement the RAG feature 
+    - Implement the RAG feature (branch: feature/song-background-rag)
+        > Add additional files of song/artist background -> consult when making recommendations
 
     - Implement Stretch Feature 
     (branch: feature/genre-overlap-rag-enhancement)
@@ -94,16 +81,19 @@ Have the Agent have structured claims like this, so Evaluator just does dict com
 - to generate sample architecture for another RAG system (e.g. pet care, scheduler), then evaluate the architecture I came up with for music recommender specifically (revised/clairfied)
 - to generate diagram based on the drafted one in my notes, also to update changes + ask follow-up questions to make diagram more accurate
     > Claude Code drew Knowledge Base arrows / flow wrong intially (song context vs song artist & background), also learned that I had left out songs.csv initially
+- to draft an implementation plan and solidify design decisions for the RAG feature 
+- generate song/artist background, revised song info to be more relevant to helping a user understand their ranking
+    > I told it to apply changes to all 18 songs and it said it did, but it actually skipped the 17th one without telling me that -> had to call it out + correct it  
 
 # Deadline: Sun, Aug 10
-Sample Presentation Outline:
+## Sample Presentation Outline:
 The Format: The "Engineer's Pitch"
-The Problem:What did you solve?
-The Logic:How does the AI think (RAG? Agentic loop?)
-The Reliability:How do you know it works? (Testing and Guardrails)
-The Reflection:What surprised you?
+The Problem: What did you solve?
+The Logic: How does the AI think (RAG? Agentic loop?)
+The Reliability: How do you know it works? (Testing and Guardrails)
+The Reflection: What surprised you?
 
-From Email: 
+## From Email: 
 - what you built and why
 - how it works
 - how you tested it
