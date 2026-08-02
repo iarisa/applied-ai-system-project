@@ -1,0 +1,31 @@
+flowchart TD
+    A["User Input:<br/>genre/mood/energy/valence/danceability preferences"]
+    DATA[("songs.csv<br/>(song attributes)")]
+    KB[("song-background-files<br/>(song & artist background)")]
+
+    A -->|user preferences| REC["Recommender<br/>scores songs against preferences"]
+    DATA -->|song attributes| REC
+
+    REC -->|top 5 ranked songs| RET["Retriever<br/>looks up background for top 5 songs"]
+    KB -->|song & artist background| RET
+
+    RET -->|top 5 songs + background| AGENT["Agent (LLM)<br/>generates explanation of recommendations"]
+
+    AGENT --> EVAL{"Evaluator<br/>checks song match, attribute accuracy, format"}
+
+    EVAL -->|pass| RESP["Final Response<br/>(recommendations + explanation)"]
+    EVAL -->|fail: retry| AGENT
+    EVAL -->|fail: retries exhausted| FALLBACK["Fallback<br/>raw scores, no explanation"]
+
+    FALLBACK --> RESP
+    RESP --> OUT(["Back to User"])
+
+    classDef io fill:#e8f0fe,stroke:#4285f4,color:#1a1a1a;
+    classDef process fill:#fef7e0,stroke:#f9a825,color:#1a1a1a;
+    classDef eval fill:#fce8e6,stroke:#d93025,color:#1a1a1a;
+    classDef store fill:#e6f4ea,stroke:#34a853,color:#1a1a1a;
+
+    class A,OUT io
+    class REC,RET,AGENT,FALLBACK process
+    class EVAL eval
+    class DATA,KB store

@@ -3,20 +3,26 @@
 # Plan
 
 # Sample Design / Architecture
-Input: User profile song preferences 
+Input: User profile song preferences
 (favorite genre, favorite mood, target energy, target valence, target danceability)
         |
         | user preferences
         V
-Retriever (Recommender):             Knowledge Base:
-scores each song based on 
-user preferences                <-----  song-background-files (contains info about each song, artist, etc.)
+Recommender:                         songs.csv:
+scores each song based on   <-----   song attributes (genre, mood, energy,
+user preferences                     tempo_bpm, valence, danceability, acousticness)
         |
-        | top 5 recommended songs
+        | top 5 ranked songs
+        V
+Retriever:                           Knowledge Base:
+looks up background for     <-----   song-background-files (contains info
+the top 5 songs only                 about each song, artist, etc.)
+        |
+        | top 5 songs + background
         V
 Agent (LLM):
-uses 5 recommended songs + song-background-files 
-to generate user-friendly explaination of the scores and each song/recommendation
+uses top 5 songs + retrieved background
+to generate user-friendly explanation of the scores and each song/recommendation
         |
         |
         V
@@ -86,6 +92,8 @@ Have the Agent have structured claims like this, so Evaluator just does dict com
 - to understand the RAG tinker lab again
 - to evaluate my ideas for using RAG to enhance my music recommender system (selected 2/3 for req + stretch bc 1st wasn't RAG)
 - to generate sample architecture for another RAG system (e.g. pet care, scheduler), then evaluate the architecture I came up with for music recommender specifically (revised/clairfied)
+- to generate diagram based on the drafted one in my notes, also to update changes + ask follow-up questions to make diagram more accurate
+    > Claude Code drew Knowledge Base arrows / flow wrong intially (song context vs song artist & background), also learned that I had left out songs.csv initially
 
 # Deadline: Sun, Aug 10
 Sample Presentation Outline:
