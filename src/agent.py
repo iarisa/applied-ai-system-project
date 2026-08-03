@@ -44,9 +44,22 @@ def _format_song_block(
     return "\n".join(lines)
 
 
+def _format_preferences_block(user_prefs: Dict) -> str:
+    return "\n".join(
+        [
+            f"Favorite genre: {user_prefs.get('favorite_genre', 'n/a')}",
+            f"Favorite mood: {user_prefs.get('favorite_mood', 'n/a')}",
+            f"Target energy: {user_prefs.get('target_energy', 'n/a')}",
+            f"Target valence: {user_prefs.get('target_valence', 'n/a')}",
+            f"Target danceability: {user_prefs.get('target_danceability', 'n/a')}",
+        ]
+    )
+
+
 def build_prompt(
     recommendations: List[Tuple[Dict, float, str]],
     background_by_id: Dict[int, Optional[Dict[str, str]]],
+    user_prefs: Dict,
 ) -> str:
     song_blocks = [
         _format_song_block(song, score, reasons, background_by_id.get(song["id"]))
@@ -54,11 +67,15 @@ def build_prompt(
     ]
     songs_text = "\n\n".join(song_blocks)
     expected_titles = ", ".join(song["title"] for song, _, _ in recommendations)
+    preferences_text = _format_preferences_block(user_prefs)
 
-    return f"""You are a music recommendation assistant. Explain to the user why each of
-the following 5 songs was recommended, using only the attributes, match
-reasons, and background info provided below. Do not invent facts not present
-here.
+    return f"""You are a warm, well-listened music curator - the kind of friend who
+always has a good story about a song. Talk to the listener directly, in a
+friendly, conversational voice, about why each of the following 5 songs was
+picked for them.
+
+Listener's stated preferences:
+{preferences_text}
 
 {songs_text}
 
@@ -72,17 +89,47 @@ Respond with ONLY valid JSON (no markdown fences, no extra text) in this exact s
   ]
 }}
 
+The most important rule: explain the WHY, not just the WHAT. Every item must
+explicitly connect the song back to the listener's stated preferences above
+(their favorite genre/mood, or their target energy/valence/danceability) -
+not just describe facts about the artist or song in isolation. Background
+trivia should support that connection, not replace it.
+
+Good example (ties the song directly to what the listener asked for):
+"1. Gym Hero - I knew you would love this pop track by Max Pulse because it
+hits every mark for an intense workout with its punchy drums, shouted gang
+vocals, and relentless four-on-the-floor beat designed to keep pace with
+your training."
+
+Bad example (only describes the artist/song, never says why it matches the
+listener):
+"4. Spacewalk Thoughts - Orbit Bloom created this eight-minute meditation
+using a single sustained drone on modular synthesizers that shifts almost
+imperceptibly over time."
+
 Rules:
 - The explanation must be a numbered list of exactly 5 items, one per song, each
   starting with the song's exact title from the data above in bold.
 - Include at least one claim per song, and every claim's level must match the
   attribute bands given above based on the actual attribute value provided.
 - Do not recommend or mention any song not in the list above.
+- Ground everything you say in the attributes, match reasons, and background
+  info given above - never invent a fact that isn't in that data. Within that
+  constraint, use your own words: do not copy sentences or phrases straight
+  out of the artist/song background text. Treat it as trivia you already
+  know and weave it naturally into the explanation, rather than quoting it.
+- Vary your sentence openings and structure across the 5 items so they don't
+  read like a templated report (e.g. don't start every entry with "This
+  track received a match score of..."). Each one should feel like its own
+  personal recommendation.
+- You do not need to state the literal numeric match score. Describe the fit
+  qualitatively (mood, energy, vibe) in plain language, and only reference a
+  number if it makes the sentence read more naturally.
 - Use plain ASCII punctuation only, throughout the entire explanation
   (hyphens, commas, periods). Do not use em dashes, en dashes, or any other
   special characters, anywhere in the text.
-- State each song's match score once and move on. Do not recompute, restate,
-  or second-guess a score or attribute value within the explanation.
+- Do not recompute, restate, or second-guess a score or attribute value
+  within the explanation.
 - Expected songs (exact titles, order not required): {expected_titles}
 """
 
@@ -100,17 +147,22 @@ class Agent:
         self,
         recommendations: List[Tuple[Dict, float, str]],
         background_by_id: Dict[int, Optional[Dict[str, str]]],
+        user_prefs: Dict,
     ) -> Dict:
         """
         recommendations: list of (song_dict, score, reasons_str), as returned
                           by recommender.recommend_songs
         background_by_id: dict of {song_id: background_dict_or_None}, as
                            returned by Retriever.get_background
+        user_prefs: the listener's preference dict (favorite_genre,
+                    favorite_mood, target_energy, target_valence,
+                    target_danceability), so the Agent can explain *why* a
+                    song fits instead of just describing it
 
         Returns {"explanation": str, "claims": list[dict]}.
         Raises ValueError if the LLM response isn't valid JSON in the expected shape.
         """
-        prompt = build_prompt(recommendations, background_by_id)
+        prompt = build_prompt(recommendations, background_by_id, user_prefs)
         raw = self.llm_client.generate(prompt)
 
         try:

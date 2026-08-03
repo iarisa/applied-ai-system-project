@@ -2,7 +2,7 @@
 Sample user preference profiles for exercising the Recommender + RAG pipeline.
 """
 
-LOFI_CHILL = {
+CHILL_LOFI = {
     "favorite_genre": "lofi",
     "favorite_mood": "chill",
     "target_energy": 0.3,
@@ -34,7 +34,7 @@ DANCE_PARTY = {
     "target_danceability": 0.9,
 }
 
-CONFLICTING_LOFI = {
+HIGH_ENERGY_LOFI = {
     "favorite_genre": "lofi",
     "favorite_mood": "chill",
     "target_energy": 0.9,
@@ -42,7 +42,7 @@ CONFLICTING_LOFI = {
     "target_danceability": 0.6,
 }
 
-SAD_HIGH_ENERGY = {
+MELANCHOLY_METALHEAD = {
     "favorite_genre": "metal",
     "favorite_mood": "melancholy",
     "target_energy": 0.9,
@@ -50,7 +50,7 @@ SAD_HIGH_ENERGY = {
     "target_danceability": 0.4,
 }
 
-NONEXISTENT_CATEGORY = {
+FURIOUS_OPERA_FAN = {
     "favorite_genre": "opera",
     "favorite_mood": "furious",
     "target_energy": 0.5,
@@ -59,11 +59,11 @@ NONEXISTENT_CATEGORY = {
 }
 
 USER_PROFILES = {
-    "Lofi Chill": LOFI_CHILL,
+    "Chill Lofi": CHILL_LOFI,
     "High-Energy Pop": HIGH_ENERGY_POP,
     "Mellow Acoustic": MELLOW_ACOUSTIC,
     "Dance Party": DANCE_PARTY,
-    "Conflicting Lofi (chill mood, high energy target)": CONFLICTING_LOFI,
-    "Sad + High Energy (conflicting)": SAD_HIGH_ENERGY,
-    "Nonexistent Category (opera/furious)": NONEXISTENT_CATEGORY,
+    "High-Energy Lofi": HIGH_ENERGY_LOFI,
+    "Melancholy Metalhead": MELANCHOLY_METALHEAD,
+    "Furious Opera Fan": FURIOUS_OPERA_FAN,
 }

@@ -41,6 +41,28 @@ def print_raw_scores(recommendations) -> None:
         print()
 
 
+def choose_user_profile(profile_names):
+    """
+    Prompts the user to pick a sample user preference profile by number.
+    Returns the chosen profile name, or None if the user chooses to quit.
+    """
+    print("Choose a user preference profile:")
+    for i, name in enumerate(profile_names, start=1):
+        print(f"  {i}) {name}")
+    print("  q) Quit")
+
+    while True:
+        choice = input("Enter choice: ").strip().lower()
+
+        if choice == "q":
+            return None
+
+        if choice.isdigit() and 1 <= int(choice) <= len(profile_names):
+            return profile_names[int(choice) - 1]
+
+        print(f"Invalid choice. Please enter a number between 1 and {len(profile_names)}, or q to quit.\n")
+
+
 def print_agent_explanation(explanation: str) -> None:
     """
     Prints the Agent's numbered explanation with a blank line between songs
@@ -56,13 +78,20 @@ def print_agent_explanation(explanation: str) -> None:
 
 def main() -> None:
     songs = load_songs("data/songs.csv")
-    print(f"Loaded songs: {len(songs)}")
 
     background = load_song_background("data/song_background.json")
     retriever = Retriever(background)
     agent, has_llm = try_create_agent()
 
-    for profile_name, profile in USER_PROFILES.items():
+    profile_names = list(USER_PROFILES.keys())
+
+    while True:
+        profile_name = choose_user_profile(profile_names)
+        if profile_name is None:
+            print("\nGoodbye.")
+            break
+
+        profile = USER_PROFILES[profile_name]
         recommendations = recommend_songs(profile, songs, k=5)
 
         print(f"\n=== {profile_name} ===")
@@ -72,7 +101,7 @@ def main() -> None:
             song_ids = [song["id"] for song, _, _ in recommendations]
             background_by_id = retriever.get_background(song_ids)
             try:
-                result = agent.generate_explanation(recommendations, background_by_id)
+                result = agent.generate_explanation(recommendations, background_by_id, profile)
                 print_agent_explanation(result["explanation"])
             except ValueError as exc:
                 print(f"Agent failed to produce a valid explanation ({exc}).")
@@ -80,6 +109,8 @@ def main() -> None:
                 print_raw_scores(recommendations)
         else:
             print_raw_scores(recommendations)
+
+        print()
 
 
 if __name__ == "__main__":
