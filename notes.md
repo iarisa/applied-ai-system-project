@@ -43,37 +43,7 @@ automated tests to verify:
 
 
 # Notes
-Evaluation:
 
-Overall: Have the Agent return both the natural-language explanation and a small structured JSON (song list + attribute claims) in the same response. It turns your hardest two checks into trivial data comparisons.
-
-
-- explanation contains the 5 expected songs exactly
-Constrain the Agent's output format in the prompt so each song is introduced identifiably, e.g. a numbered list with the exact title from your data (1. **Song Title** — ...).
-
-The Evaluator then just does a straight set comparison: extract the 5 titles from that structured position in the text (or from the claims list below if you go structured), and check set(extracted) == set(expected_top_5).
-
-- accurate attribute claims (e.g. if mentions high energy, ensure it's actually high)
-
-Have the Agent have structured claims like this, so Evaluator just does dict comparison:
-{
-  "explanation": "Song X is a great pick because it's high-energy...",
-  "claims": [{"song": "Song X", "attribute": "energy", "level": "high"}, ...]
-}
-
-# Schedule
-- Sun 8/2:
-    - Implement the RAG feature (branch: feature/song-background-rag)
-        > Add additional files of song/artist background -> consult when making recommendations
-
-    - Implement Stretch Feature 
-    (branch: feature/genre-overlap-rag-enhancement)
-        > Add data file that describes overlapping genres -> add as explanation
-        > Document before and after (across branches)
-
-    - (Optional) Implement Stretch Feature 2
-        > Test Harness or Evaluation Script
-        Build a script that runs your system on a set of predefined inputs and prints a summary (pass/fail scores, confidence ratings, or similar).
 
 # How I used AI
 - to understand the RAG tinker lab again
@@ -84,6 +54,7 @@ Have the Agent have structured claims like this, so Evaluator just does dict com
 - to draft an implementation plan and solidify design decisions for the RAG feature 
 - generate song/artist background, revised song info to be more relevant to helping a user understand their ranking
     > I told it to apply changes to all 18 songs and it said it did, but it actually skipped the 17th one without telling me that -> had to call it out + correct it  
+- Upgraded UI + also refined prompt sent to Gemini to sound more conversational instead of sounding like copy/paste from the docs
 
 # Deadline: Sun, Aug 10
 ## Sample Presentation Outline:
@@ -99,3 +70,52 @@ The Reflection: What surprised you?
 - how you tested it
 - the challenges you overcame
 - what you're most proud of
+
+## 4. Reliability and Evaluation: How You Test and Improve Your AI
+- Claims kept being off
+-When I selected 4 twice, here's what I got:
+Attempt 1: Evaluator rejected the explanation:
+  - Inaccurate claim: Spacewalk Thoughts danceability=0.41 is 'medium', but claim said 'low'.
+
+Attempt 2: Evaluator rejected the explanation:
+  - Inaccurate claim: Spacewalk Thoughts danceability=0.41 is 'medium', but claim said 'high'.
+
+Retries exhausted. Falling back to raw scores.
+
+Had to update thresholds to be < / > not <= >= (non-inclusive, bc otherwise confusing agent)
+
+- Fixed boundary cases
+- Still failing in full prompt, but succesful in isolation
+- Instead defined claims and thresholds, then fed into AI instead of letting it derive them 
+
+- Surprising: that it was getting the thresholds wrong in full prompt, but correct on isolated tests
+- Other testing + improvement: Had to revise prompt to not be generic, in two
+different ways found through testing:
+
+1) Generic tone - sounded like it was copy/pasting straight from the
+song-background docs instead of talking like a person.
+
+Before (copy/paste tone):
+"This track received a match score of 5.91 due to a genre match and mood
+match. It pairs rain-soaked field recordings with gentle Rhodes piano
+chords."
+
+After (conversational, in its own words):
+"Paper Lanterns crafted this piece using real audio captured right outside
+a university library window, layering it beneath gentle Rhodes piano chords
+that never rise above a whisper. It hits a medium energy level alongside a
+high acousticness rating, making it a natural fit for your chill session."
+
+2) Generic content - described facts about the artist/song without ever
+explaining why it matched my stated preferences.
+
+Before (describes the artist/song, never says why it matches me):
+"4. Spacewalk Thoughts - Orbit Bloom created this eight-minute meditation
+using a single sustained drone on modular synthesizers that shifts almost
+imperceptibly over time."
+
+After (explicitly ties back to what I asked for):
+"1. Gym Hero - I knew you would love this pop track by Max Pulse because it
+hits every mark for an intense workout with its punchy drums, shouted gang
+vocals, and relentless four-on-the-floor beat designed to keep pace with
+your training."
