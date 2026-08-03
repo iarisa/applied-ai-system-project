@@ -66,7 +66,7 @@ Attribute level bands (use these, don't invent your own): {LEVEL_BANDS}
 
 Respond with ONLY valid JSON (no markdown fences, no extra text) in this exact shape:
 {{
-  "explanation": "1. **<exact song title>** \\u2014 <1-2 sentence explanation>\\n2. ...",
+  "explanation": "1. **<exact song title>** - <1-2 sentence explanation>\\n2. ...",
   "claims": [
     {{"song": "<exact song title>", "attribute": "energy|valence|danceability|acousticness", "level": "high|medium|low"}}
   ]
@@ -78,6 +78,11 @@ Rules:
 - Include at least one claim per song, and every claim's level must match the
   attribute bands given above based on the actual attribute value provided.
 - Do not recommend or mention any song not in the list above.
+- Use plain ASCII punctuation only, throughout the entire explanation
+  (hyphens, commas, periods). Do not use em dashes, en dashes, or any other
+  special characters, anywhere in the text.
+- State each song's match score once and move on. Do not recompute, restate,
+  or second-guess a score or attribute value within the explanation.
 - Expected songs (exact titles, order not required): {expected_titles}
 """
 
