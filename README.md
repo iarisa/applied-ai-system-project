@@ -10,7 +10,7 @@ PutMeOn 2.0 pairs that scoring engine with RAG: instead of handing you a bare nu
 
 ## Architecture Overview
 
-PutMeOn 2.0 runs as a five-stage pipeline (see [`diagrams/architecture.mmd`](diagrams/architecture.mmd)). Your stated preferences and `songs.csv`'s song attributes feed the **Recommender**, which scores every song and returns the top 5. The **Retriever** looks up artist/song background for just those 5 from the knowledge base, then the **Agent** (LLM) uses that background to generate a natural-language explanation of the picks. The **Evaluator** checks that explanation for song-match accuracy, attribute accuracy, and format before it's shown - a failure sends it back to the Agent for a retry, and exhausting retries falls back to raw scores rather than showing an unverified explanation. Either way, that final response (explanation or raw scores) is what reaches the user.
+PutMeOn 2.0 runs as a five-stage pipeline (see `diagrams/architecture.mmd`). Your stated preferences and `songs.csv`'s song attributes feed the **Recommender**, which scores every song and returns the top 5. The **Retriever** looks up artist/song background for just those 5 from the knowledge base, then the **Agent** (LLM) uses that background to generate a natural-language explanation of the picks. The **Evaluator** checks that explanation for song-match accuracy, attribute accuracy, and format before it's shown - a failure sends it back to the Agent for a retry, and exhausting retries falls back to raw scores rather than showing an unverified explanation. Either way, that final response (explanation or raw scores) is what reaches the user.
 
 ## Setup Instructions
 
@@ -149,26 +149,6 @@ Agent/Evaluator checks: 7/7 passed
 
 Notice "Chill Lofi" needed a retry (attempt 2/2) before its explanation passed - the Evaluator rejected the Agent's first attempt (an inaccurate attribute claim) and the retry loop caught it, so what reaches the user is always checked against the real data rather than trusted on the first try.
 
-Include at least 2-3 examples of inputs and the resulting AI outputs to demonstrate the system is functional.
-
-Include reproducible execution evidence in your README (required): So your system can be graded without watching a video, your README.md must include, in markdown (code blocks or generated .txt logs):
-
-- Sample command executions
-- Example inputs
-- Example outputs
-- Reliability/guardrail results
-
-
-> **[IMPORTANT]**
-> To receive an accurate grade, make sure your text-based execution evidence in the README clearly demonstrates:
->
-> - ✅ End-to-end system run (2–3 inputs)
-> - ✅ AI feature behavior (RAG, agent, etc.)
-> - ✅ Reliability/guardrail or evaluation behavior
-> - ✅ Clear outputs for each case
->
-
-
 ## Design Decisions
 
 I stored each song's artist/background info in a single JSON file, keyed by song, rather than cramming it into a long text field on the existing `songs.csv`. Claude Code suggested a separate file per song (18 files total), but I went with one file holding all 18 entries. It's easier to load as one file, but it requires more scrolling.
@@ -191,7 +171,7 @@ However, there were still errors in the LLM explanation because the Evaluator fl
 ### Evaluating LLM Explanations
 I also tested the LLM's explanations based on the information it was retrieving from the `song_background` JSON. At first, the explanations sounded like they were copy-pasted straight from the song background docs (e.g. "This track received a match score of 5.91 due to a genre match...") instead of sounding like a real person. I revised the prompt to make it sound more conversational instead of having a rigid structure. Even then, the explanations were still describing the artist/song without really explaining why it matched the user's stated preferences. So I had to pass in the user preferences and explicitly update the prompt to tie the explanations back to them. This had better output like "I knew you would love this because it hits every mark for an intense workout..." instead of a plain artist bio.
 
-### Lessons
+### Lessons Learned
 I learned that it's important to resolve any ambiguity in the prompt that an LLM receives (such as overlapping boundaries for thresholds) and to provide all the necessary information needed to generate better results (e.g. user preferences). I also learned how to separate predefined definitions (e.g. low/medium/high classifications) from data that should be generated (e.g. user-friendly explanations).
 
 ## Reflection
