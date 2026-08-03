@@ -1,5 +1,3 @@
-pandas
 pytest
-streamlit
 google-genai
 python-dotenv
